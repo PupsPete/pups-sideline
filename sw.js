@@ -1,6 +1,6 @@
 /* Pups Sideline Log — offline shell.
    Bump CACHE when a new version ships; the old cache is deleted on activate. */
-var CACHE = "pups-sideline-v9";
+var CACHE = "pups-sideline-v10";
 var ASSETS = [
   "./",
   "./index.html",
