@@ -1,0 +1,578 @@
+{
+ "kind": "pups-sideline-setup",
+ "version": 1786131199529,
+ "label": "",
+ "team": "",
+ "field": 100,
+ "evenRight": true,
+ "opponent": "Brownsburg & Westfield",
+ "date": "2026-08-08",
+ "plays": [
+  {
+   "n": 1,
+   "text": "TE Left, Strong I 25",
+   "form": "TE Left",
+   "back": "Strong I",
+   "motion": "",
+   "ballBack": "2",
+   "hole": "5",
+   "concept": "",
+   "dir": "L",
+   "type": "Run",
+   "_label": "25"
+  },
+  {
+   "n": 2,
+   "text": "TE Right, Strong I 26",
+   "form": "TE Right",
+   "back": "Strong I",
+   "motion": "",
+   "ballBack": "2",
+   "hole": "6",
+   "concept": "",
+   "dir": "R",
+   "type": "Run",
+   "_label": "26"
+  },
+  {
+   "n": 3,
+   "text": "TE Left, Weak I 35",
+   "form": "TE Left",
+   "back": "Weak I",
+   "motion": "",
+   "ballBack": "3",
+   "hole": "5",
+   "concept": "",
+   "dir": "L",
+   "type": "Run",
+   "_label": "35"
+  },
+  {
+   "n": 4,
+   "text": "TE Right, Weak I 34",
+   "form": "TE Right",
+   "back": "Weak I",
+   "motion": "",
+   "ballBack": "3",
+   "hole": "4",
+   "concept": "",
+   "dir": "R",
+   "type": "Run",
+   "_label": "34"
+  },
+  {
+   "n": 5,
+   "text": "TE Right, Strong I Wide 28",
+   "form": "TE Right",
+   "back": "Strong I Wide",
+   "motion": "",
+   "ballBack": "2",
+   "hole": "8",
+   "concept": "",
+   "dir": "R",
+   "type": "Run",
+   "_label": "28"
+  },
+  {
+   "n": 6,
+   "text": "TE Left, Strong I  Wide 29",
+   "form": "TE Left",
+   "back": "Strong I Wide",
+   "motion": "",
+   "ballBack": "2",
+   "hole": "9",
+   "concept": "",
+   "dir": "L",
+   "type": "Run",
+   "_label": "29"
+  },
+  {
+   "n": 7,
+   "text": "Spread Left 46",
+   "form": "Spread Left",
+   "back": "",
+   "motion": "",
+   "ballBack": "4",
+   "hole": "6",
+   "concept": "",
+   "dir": "R",
+   "type": "Run",
+   "_label": "46"
+  },
+  {
+   "n": 8,
+   "text": "Spread Right 47",
+   "form": "Spread Right",
+   "back": "",
+   "motion": "",
+   "ballBack": "4",
+   "hole": "7",
+   "concept": "",
+   "dir": "L",
+   "type": "Run",
+   "_label": "47"
+  },
+  {
+   "n": 9,
+   "text": "Spread Right Strong I X wide 28",
+   "form": "Spread Right",
+   "back": "Strong I X-Wide",
+   "motion": "",
+   "ballBack": "2",
+   "hole": "8",
+   "concept": "",
+   "dir": "R",
+   "type": "Run",
+   "_label": "28"
+  },
+  {
+   "n": 10,
+   "text": "Spread Left Strong I X wide 29",
+   "form": "Spread Left",
+   "back": "Strong I X-Wide",
+   "motion": "",
+   "ballBack": "2",
+   "hole": "9",
+   "concept": "",
+   "dir": "L",
+   "type": "Run",
+   "_label": "29"
+  },
+  {
+   "n": 11,
+   "text": "TE Left, Strong I, Fake 24 QB boot left",
+   "form": "TE Left",
+   "back": "Strong I",
+   "motion": "",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "L",
+   "type": "QB keep",
+   "_label": "QB Boot L"
+  },
+  {
+   "n": 12,
+   "text": "TE Right, Strong I, Fake 25 QB boot right",
+   "form": "TE Right",
+   "back": "Strong I",
+   "motion": "",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "R",
+   "type": "QB keep",
+   "_label": "QB Boot R"
+  },
+  {
+   "n": 13,
+   "text": "Spread Left, Strong I X-Wide, Fake 29 QB Follow",
+   "form": "Spread Left",
+   "back": "Strong I X-Wide",
+   "motion": "",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "",
+   "type": "QB run",
+   "_label": "QB Follow"
+  },
+  {
+   "n": 14,
+   "text": "Spread Right, Strong I, X-Wide fake 28 QB Follow",
+   "form": "Spread Right",
+   "back": "Strong I X-Wide",
+   "motion": "",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "",
+   "type": "QB run",
+   "_label": "QB Follow"
+  },
+  {
+   "n": 15,
+   "text": "TE Rt, Strong I, Z-motion left, FAKE Jet Sweep 22",
+   "form": "TE Right",
+   "back": "Strong I",
+   "motion": "Z motion + Jet",
+   "ballBack": "2",
+   "hole": "2",
+   "concept": "",
+   "dir": "R",
+   "type": "Sweep",
+   "_label": "22"
+  },
+  {
+   "n": 16,
+   "text": "TE right, Weak I wide, Fake 26, Z-around",
+   "form": "TE Right",
+   "back": "Weak I Wide",
+   "motion": "Z around",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "",
+   "type": "Run",
+   "_label": "Z Around"
+  },
+  {
+   "n": 17,
+   "text": "TE Left, Weak I Wide, Fake 25, Z- around",
+   "form": "TE Left",
+   "back": "Weak I Wide",
+   "motion": "",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "",
+   "type": "Run",
+   "_label": "Z Around"
+  },
+  {
+   "n": 18,
+   "text": "Spread Right, Weak I Wide, FB Motion to Slot Right 28",
+   "form": "Spread Right",
+   "back": "Weak I Wide",
+   "motion": "FB motion",
+   "ballBack": "2",
+   "hole": "8",
+   "concept": "",
+   "dir": "R",
+   "type": "Run",
+   "_label": "28"
+  },
+  {
+   "n": 19,
+   "text": "Spread Left, Weak I Wide, FB Motion to Slot Left 29",
+   "form": "Spread Left",
+   "back": "Weak I Wide",
+   "motion": "FB motion",
+   "ballBack": "2",
+   "hole": "9",
+   "concept": "",
+   "dir": "L",
+   "type": "Run",
+   "_label": "29"
+  },
+  {
+   "n": 20,
+   "text": "Spread Right, Strong I Wide FB motion left 34",
+   "form": "Spread Right",
+   "back": "Strong I Wide",
+   "motion": "FB motion",
+   "ballBack": "3",
+   "hole": "4",
+   "concept": "",
+   "dir": "R",
+   "type": "Run",
+   "_label": "34"
+  },
+  {
+   "n": 21,
+   "text": "TE Right, Weak I wide, Slam Motion 26",
+   "form": "TE Right",
+   "back": "Weak I Wide",
+   "motion": "Slam motion",
+   "ballBack": "2",
+   "hole": "6",
+   "concept": "",
+   "dir": "R",
+   "type": "Run",
+   "_label": "26"
+  },
+  {
+   "n": 22,
+   "text": "TE Left, Weak I wide, Slam Motion 27",
+   "form": "TE Left",
+   "back": "Weak I Wide",
+   "motion": "Slam motion",
+   "ballBack": "2",
+   "hole": "7",
+   "concept": "",
+   "dir": "L",
+   "type": "Run",
+   "_label": "27"
+  },
+  {
+   "n": 23,
+   "text": "Spread Right, Strong I Wide, Fake 25, X around",
+   "form": "Spread Right",
+   "back": "Strong I Wide",
+   "motion": "X around",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "",
+   "type": "Run",
+   "_label": "X Around"
+  },
+  {
+   "n": 24,
+   "text": "TE Left, Strong I wide, Fake 24, QB Boot left, TE GO, Z hitch",
+   "form": "TE Left",
+   "back": "Strong I Wide",
+   "motion": "",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "L",
+   "type": "Pass",
+   "_label": "Boot Pass L · 24"
+  },
+  {
+   "n": 25,
+   "text": "TE Left, Strong I wide, Fake 24, QB Boot left, TE Flat, Z GO",
+   "form": "TE Left",
+   "back": "Strong I Wide",
+   "motion": "",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "L",
+   "type": "Pass",
+   "_label": "Boot Pass L · 25"
+  },
+  {
+   "n": 26,
+   "text": "Twins Left, Weak I Wide 927",
+   "form": "Twins Left",
+   "back": "Weak I Wide",
+   "motion": "",
+   "ballBack": "QB",
+   "hole": "",
+   "concept": "927",
+   "dir": "",
+   "type": "Pass",
+   "_label": "927"
+  },
+  {
+   "n": 27,
+   "text": "Twins Left, Weak I Wide 941",
+   "form": "Twins Left",
+   "back": "Weak I Wide",
+   "motion": "",
+   "ballBack": "QB",
+   "hole": "",
+   "concept": "941",
+   "dir": "",
+   "type": "Pass",
+   "_label": "941"
+  },
+  {
+   "n": 28,
+   "text": "Twins Left, Weak I Wide 987",
+   "form": "Twins Left",
+   "back": "Weak I Wide",
+   "motion": "",
+   "ballBack": "QB",
+   "hole": "",
+   "concept": "987",
+   "dir": "",
+   "type": "Pass",
+   "_label": "987"
+  },
+  {
+   "n": 29,
+   "text": "Twins Left, Weak I, Fake 24 FB Wheel",
+   "form": "Twins Left",
+   "back": "Weak I",
+   "motion": "",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "",
+   "type": "Pass",
+   "_label": "FB Wheel"
+  },
+  {
+   "n": 30,
+   "text": "Spread Right, Strong I X-Wide, Z Stay Pass",
+   "form": "Spread Right",
+   "back": "Strong I X-Wide",
+   "motion": "",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "",
+   "type": "Pass",
+   "_label": "Z Stay"
+  },
+  {
+   "n": 31,
+   "text": "Spread Right, Weak I X-Wide, X Stay Pass",
+   "form": "Spread Right",
+   "back": "Weak I X-Wide",
+   "motion": "",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "",
+   "type": "Pass",
+   "_label": "X Stay"
+  },
+  {
+   "n": 32,
+   "text": "TE Left, Weak I Wide, Z-motion Right, Jet Sweep Right",
+   "form": "TE Left",
+   "back": "Weak I Wide",
+   "motion": "Z motion + Jet",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "R",
+   "type": "Sweep",
+   "_label": "Jet Sweep R"
+  },
+  {
+   "n": 33,
+   "text": "TE Right, Weak I, QB Draw (3 step Drop)",
+   "form": "TE Right",
+   "back": "Weak I",
+   "motion": "",
+   "ballBack": "",
+   "hole": "",
+   "concept": "",
+   "dir": "",
+   "type": "QB run",
+   "_label": "QB Draw"
+  }
+ ],
+ "roster": [
+  {
+   "n": 1,
+   "last": "Hensley"
+  },
+  {
+   "n": 5,
+   "last": "Carpenter"
+  },
+  {
+   "n": 7,
+   "last": "Carpenter"
+  },
+  {
+   "n": 10,
+   "last": "Coellner"
+  },
+  {
+   "n": 12,
+   "last": "Bachman"
+  },
+  {
+   "n": 15,
+   "last": "Mahar"
+  },
+  {
+   "n": 17,
+   "last": "Sapp"
+  },
+  {
+   "n": 18,
+   "last": "Smiles"
+  },
+  {
+   "n": 20,
+   "last": "Kleymeyer"
+  },
+  {
+   "n": 21,
+   "last": "Carr"
+  },
+  {
+   "n": 25,
+   "last": "Cross"
+  },
+  {
+   "n": 28,
+   "last": "Blomeke"
+  },
+  {
+   "n": 29,
+   "last": "Louie"
+  },
+  {
+   "n": 30,
+   "last": "Duncan"
+  },
+  {
+   "n": 32,
+   "last": "Tomaska"
+  },
+  {
+   "n": 34,
+   "last": "Chobany"
+  },
+  {
+   "n": 40,
+   "last": "Heid"
+  },
+  {
+   "n": 42,
+   "last": "Toth"
+  },
+  {
+   "n": 44,
+   "last": "Nuss"
+  },
+  {
+   "n": 48,
+   "last": "Reagon"
+  },
+  {
+   "n": 52,
+   "last": "Khaziniuk"
+  },
+  {
+   "n": 55,
+   "last": "Blythe"
+  },
+  {
+   "n": 64,
+   "last": "Yates"
+  },
+  {
+   "n": 66,
+   "last": "West"
+  },
+  {
+   "n": 72,
+   "last": "Rangel"
+  },
+  {
+   "n": 74,
+   "last": "Peterson"
+  },
+  {
+   "n": 75,
+   "last": "Gall"
+  },
+  {
+   "n": 77,
+   "last": "Hinkle"
+  },
+  {
+   "n": 88,
+   "last": "Dona"
+  }
+ ],
+ "oppForms": [
+  "Trips Rt",
+  "Trips Lt",
+  "I Right",
+  "I Left",
+  "Spread",
+  "Wing Rt",
+  "Wing Lt"
+ ],
+ "oppPlays": [
+  "Inside run",
+  "Outside run",
+  "Sweep",
+  "Dive",
+  "Counter",
+  "Pass",
+  "QB keep",
+  "Screen"
+ ]
+}
