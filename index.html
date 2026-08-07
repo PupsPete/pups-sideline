@@ -104,6 +104,22 @@ input,select,textarea{font:inherit;color:inherit}
 .chip.flagcol[aria-pressed="true"]{background:var(--gold);border-color:var(--navy);border-width:2px;color:var(--navy)}
 .chip.goodcol[aria-pressed="true"]{background:var(--good);border-color:var(--good);color:#fff}
 .chip.badcol[aria-pressed="true"]{background:var(--bad);border-color:var(--bad);color:#fff}
+.playlist{max-height:54vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+.psec{position:sticky;top:0;z-index:3;background:var(--navy);color:#fff;font-size:11px;font-weight:900;
+  letter-spacing:.13em;text-transform:uppercase;padding:6px 10px}
+.psec.pass{background:var(--blue)}
+.pfam{position:sticky;top:26px;z-index:2;background:var(--rule-2);color:var(--ink);font-size:10px;
+  font-weight:800;letter-spacing:.09em;text-transform:uppercase;padding:4px 10px}
+.prow{display:flex;align-items:center;width:100%;min-height:52px;padding:9px 12px;
+  border:0;border-left:4px solid transparent;border-bottom:1px solid var(--rule-2);
+  background:var(--card);text-align:left;cursor:pointer}
+.prow:last-child{border-bottom:0}
+.prow:active{background:var(--pick-soft)}
+.prow .ptx{flex:1;min-width:0;font-size:15px;font-weight:700;line-height:1.3}
+.prow[aria-pressed="true"]{background:var(--navy);border-left-color:var(--gold)}
+.prow[aria-pressed="true"] .ptx{color:#fff}
+.prow[aria-pressed="true"]:active{background:var(--navy)}
 .chip.jchip{flex-direction:column;gap:1px;min-height:54px;padding:5px 3px;overflow:hidden}
 .chip.jchip .jn{font-size:18px;font-weight:900;line-height:1;letter-spacing:-.01em}
 .chip.jchip .jl{font-size:9.5px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;line-height:1.05;
@@ -231,7 +247,7 @@ tr.noclip td{opacity:.6}
       <div class="derived" id="playDerived"></div>
     </div>
     <input type="text" id="playFilter" placeholder="Filter plays (typing works on a laptop)" style="margin-bottom:8px">
-    <div class="grid" id="playGrid" style="grid-template-columns:repeat(auto-fill,minmax(56px,1fr))"></div>
+    <div class="playlist" id="playGrid"></div>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(78px,1fr));margin-top:8px" id="specialGrid"></div>
   </div>
 
@@ -304,7 +320,13 @@ tr.noclip td{opacity:.6}
 <div class="pane" id="pane-plays" hidden>
   <div class="block">
     <div class="lbl"><span>This week's play sheet</span><span class="num" id="playListCount"></span></div>
-    <p class="hint" style="margin:0 0 8px">Paste the numbered list straight out of Excel &mdash; one play per line. Formation, backfield, motion, ball carrier and direction get parsed automatically, so the coach only ever taps a number.</p>
+    <div style="border:2px dashed var(--rule);border-radius:10px;padding:12px;text-align:center;margin-bottom:10px" id="dropZone">
+      <input type="file" id="playFile" accept=".xlsx,.csv,.txt,text/csv,text/plain" style="display:none">
+      <button class="chip sm" id="pickFile" style="display:inline-flex;padding:0 18px">Choose the week&rsquo;s play sheet</button>
+      <div class="hint" style="margin-top:7px">Excel (.xlsx) or CSV. On a laptop you can drag the file onto this box.</div>
+      <div class="hint" id="fileMsg" style="margin-top:5px;font-weight:700"></div>
+    </div>
+    <p class="hint" style="margin:0 0 8px">Or paste the list &mdash; one play per line. Formation, backfield, motion, ball carrier and direction get parsed automatically, so the coach only ever taps a number.</p>
     <textarea id="playPaste" placeholder="1.  TE Left, Strong I 25&#10;2.  TE Right, Strong I 26&#10;3.  TE Left, Weak I 35"></textarea>
     <div class="rowflex" style="margin-top:8px">
       <button class="rowbtn" id="parsePlays">Load play sheet</button>
@@ -528,6 +550,133 @@ function blankCur(carry){
 }
 
 /* ============================================================
+   Reading a real .xlsx — no libraries, no network.
+   An xlsx is a zip of XML; browsers can inflate it natively.
+   ============================================================ */
+// Shared logic — identical code runs in the browser and in this test.
+function xmlText(s){
+  return String(s).replace(/&lt;/g,"<").replace(/&gt;/g,">")
+    .replace(/&quot;/g,'"').replace(/&apos;/g,"'")
+    .replace(/&#(\d+);/g,function(m,d){ return String.fromCharCode(parseInt(d,10)); })
+    .replace(/&amp;/g,"&");
+}
+function parseSharedStrings(xml){
+  var out=[], re=/<si\b[^>]*>([\s\S]*?)<\/si>/g, m;
+  while((m=re.exec(xml))!==null){
+    var txt="", tre=/<t\b[^>]*>([\s\S]*?)<\/t>/g, tm;
+    while((tm=tre.exec(m[1]))!==null) txt+=tm[1];
+    out.push(xmlText(txt));
+  }
+  return out;
+}
+function parseSheet(xml, shared){
+  var rows=[], rre=/<row\b[^>]*>([\s\S]*?)<\/row>/g, rm;
+  while((rm=rre.exec(xml))!==null){
+    var cells=[], cre=/<c\b([^>]*)>([\s\S]*?)<\/c>/g, cm;
+    while((cm=cre.exec(rm[1]))!==null){
+      var attrs=cm[1], body=cm[2], t=(attrs.match(/\bt="([^"]+)"/)||[])[1]||"n", val="";
+      if(t==="s"){
+        var v=(body.match(/<v>([\s\S]*?)<\/v>/)||[])[1];
+        var i=parseInt(v,10);
+        val = (!isNaN(i) && shared[i]!==undefined) ? shared[i] : "";
+      } else if(t==="inlineStr"){
+        var tre2=/<t\b[^>]*>([\s\S]*?)<\/t>/g, tm2;
+        while((tm2=tre2.exec(body))!==null) val+=tm2[1];
+        val=xmlText(val);
+      } else {
+        var v2=(body.match(/<v>([\s\S]*?)<\/v>/)||[])[1];
+        val = v2===undefined ? "" : xmlText(v2);
+      }
+      cells.push(val);
+    }
+    // self-closing empty cells
+    var sre=/<c\b[^>]*\/>/g;
+    if(sre.test(rm[1])){ /* empty cells contribute nothing */ }
+    rows.push(cells);
+  }
+  return rows;
+}
+function rowsToLines(rows){
+  var out=[];
+  rows.forEach(function(cells){
+    var c=cells.map(function(x){ return String(x==null?"":x).trim(); }).filter(function(x){ return x!==""; });
+    if(!c.length) return;
+    var line;
+    if(c.length>1 && /^\d+$/.test(c[0])) line = c[0]+". "+c.slice(1).join(" ");
+    else line = c.join(" ");
+    out.push(line);
+  });
+  return out;
+}
+function parseCSVText(text){
+  var rows=[], row=[], cur="", q=false;
+  for(var i=0;i<text.length;i++){
+    var ch=text[i];
+    if(q){
+      if(ch==='"'){ if(text[i+1]==='"'){ cur+='"'; i++; } else q=false; }
+      else cur+=ch;
+    } else {
+      if(ch==='"') q=true;
+      else if(ch===','){ row.push(cur); cur=""; }
+      else if(ch==='\n'){ row.push(cur); rows.push(row); row=[]; cur=""; }
+      else if(ch!=='\r') cur+=ch;
+    }
+  }
+  if(cur!==""||row.length){ row.push(cur); rows.push(row); }
+  return rows;
+}
+
+function inflateRaw(u8){
+  if(typeof DecompressionStream === "undefined") return Promise.reject(new Error("nodecomp"));
+  var ds = new DecompressionStream("deflate-raw");
+  return new Response(new Blob([u8]).stream().pipeThrough(ds)).arrayBuffer();
+}
+function unzip(arrayBuffer){
+  var U8=new Uint8Array(arrayBuffer), dv=new DataView(arrayBuffer);
+  var eocd=-1, lo=Math.max(0,U8.length-66000);
+  for(var i=U8.length-22;i>=lo;i--){ if(dv.getUint32(i,true)===0x06054b50){ eocd=i; break; } }
+  if(eocd<0) throw new Error("Not a zip/xlsx file.");
+  var count=dv.getUint16(eocd+10,true), p=dv.getUint32(eocd+16,true), files={};
+  for(var k=0;k<count;k++){
+    if(dv.getUint32(p,true)!==0x02014b50) break;
+    var method=dv.getUint16(p+10,true), csize=dv.getUint32(p+20,true);
+    var fnLen=dv.getUint16(p+28,true), exLen=dv.getUint16(p+30,true), cmLen=dv.getUint16(p+32,true);
+    var lho=dv.getUint32(p+42,true);
+    var name=new TextDecoder().decode(U8.subarray(p+46,p+46+fnLen));
+    var start=lho+30+dv.getUint16(lho+26,true)+dv.getUint16(lho+28,true);
+    files[name]={method:method,raw:U8.subarray(start,start+csize)};
+    p+=46+fnLen+exLen+cmLen;
+  }
+  return files;
+}
+function entryText(e){
+  if(!e) return Promise.resolve("");
+  if(e.method===0) return Promise.resolve(new TextDecoder().decode(e.raw));
+  return inflateRaw(e.raw).then(function(b){ return new TextDecoder().decode(b); });
+}
+function numberedCount(lines){
+  var n=0; lines.forEach(function(l){ if(/^\s*\d+\s*[\.\)\:\-]/.test(l)) n++; });
+  return n;
+}
+function readXlsxLines(arrayBuffer){
+  var files=unzip(arrayBuffer);
+  var sheets=Object.keys(files).filter(function(n){ return /^xl\/worksheets\/sheet\d+\.xml$/.test(n); }).sort();
+  if(!sheets.length) throw new Error("No worksheet found in that file.");
+  return entryText(files["xl/sharedStrings.xml"]).then(function(ssXml){
+    var shared = ssXml ? parseSharedStrings(ssXml) : [];
+    function trySheet(idx,best){
+      if(idx>=sheets.length) return best||[];
+      return entryText(files[sheets[idx]]).then(function(xml){
+        var lines=rowsToLines(parseSheet(xml,shared));
+        if(numberedCount(lines)>=3) return lines;
+        return trySheet(idx+1, (best&&best.length>=lines.length)?best:lines);
+      });
+    }
+    return trySheet(0,null);
+  });
+}
+
+/* ============================================================
    Play sheet parsing
    ============================================================ */
 var FORMS = [
@@ -603,6 +752,71 @@ function parsePlayLine(line){
   }
   return o;
 }
+function famOf(p){
+  var f=(p.form||"").trim();
+  if(!f) return "Unsorted";
+  return f.replace(/\s*(Left|Right)$/i,"").trim() || "Unsorted";
+}
+function abbrevOf(p){
+  var f=(p.form||"").replace(/Left$/i,"Lt").replace(/Right$/i,"Rt");
+  var b=(p.back||"").replace(/Strong I/i,"Str I").replace(/Weak I/i,"Wk I").replace(/X-Wide/i,"X-Wd");
+  var m=(p.motion||"").split(" + ")[0];
+  return [f,b,m].filter(Boolean).join(" \u00B7 ");
+}
+function actionLabel(p){
+  var t=p.text||"";
+  if(p.concept) return p.concept;
+  if(p.hole!=="" && p.ballBack) return p.ballBack+p.hole;
+  var d = p.dir ? " "+p.dir : "";
+  if(/jet\s*sweep/i.test(t))   return "Jet Sweep"+d;
+  if(/qb\s*draw/i.test(t))     return "QB Draw";
+  if(/qb\s*follow/i.test(t))   return "QB Follow";
+  if(/qb\s*sneak/i.test(t))    return "QB Sneak";
+  if(/boot|naked|roll/i.test(t))return (p.type==="Pass"?"Boot Pass":"QB Boot")+d;
+  if(/fb\s*wheel/i.test(t))    return "FB Wheel";
+  if(/\bz\s*stay/i.test(t))    return "Z Stay";
+  if(/\bx\s*stay/i.test(t))    return "X Stay";
+  if(/\bz\s*-?\s*around/i.test(t))return "Z Around";
+  if(/\bx\s*-?\s*around/i.test(t))return "X Around";
+  if(/\bsweep\b/i.test(t))     return "Sweep"+d;
+  return "No. "+p.n;
+}
+function isPassPlay(p){ return p.type==="Pass"; }
+/* Run plays first, then pass. Inside each, group by formation family in the
+   order the coach's sheet introduces them; inside a family, mirrors sit adjacent. */
+function buildPlayGroups(list){
+  function build(subset){
+    var fams={}, order=[];
+    subset.forEach(function(p){
+      var f=famOf(p);
+      if(!fams[f]){ fams[f]={name:f,first:(p.n===null?9999:p.n),plays:[]}; order.push(fams[f]); }
+      fams[f].plays.push(p);
+      if(p.n!==null && p.n<fams[f].first) fams[f].first=p.n;
+    });
+    order.sort(function(a,b){ return a.first-b.first; });
+    order.forEach(function(g){
+      g.plays.sort(function(a,b){
+        var ba=(a.back||"~"), bb=(b.back||"~");
+        if(ba!==bb) return ba<bb?-1:1;
+        return (a.n||0)-(b.n||0);
+      });
+      var seen={};
+      g.plays.forEach(function(p){
+        var k=actionLabel(p)+"|"+abbrevOf(p);
+        seen[k]=(seen[k]||0)+1;
+      });
+      g.plays.forEach(function(p){
+        var l=actionLabel(p), k=l+"|"+abbrevOf(p);
+        p._label = seen[k]>1 ? (l+" \u00B7 "+p.n) : l;
+      });
+    });
+    return order;
+  }
+  return [
+    {title:"Run",  cls:"first",  groups:build(list.filter(function(p){ return !isPassPlay(p); }))},
+    {title:"Pass", cls:"pass",   groups:build(list.filter(isPassPlay))}
+  ];
+}
 function reparseAll(){
   for(var i=0;i<S.plays.length;i++){
     var p=parsePlayLine((S.plays[i].n!==null? S.plays[i].n+". ":"")+S.plays[i].text);
@@ -675,15 +889,25 @@ function renderForm(){
   // play grid
   var filter=$("playFilter").value.trim().toLowerCase();
   var pg=$("playGrid"); pg.innerHTML="";
+  var visible = S.plays.filter(function(p){
+    if(!filter) return true;
+    return p.text.toLowerCase().indexOf(filter)>-1 || String(p.n).indexOf(filter)>-1;
+  });
   var shown=0;
-  S.plays.forEach(function(p){
-    if(filter && (p.text.toLowerCase().indexOf(filter)<0 && String(p.n).indexOf(filter)<0)) return;
-    shown++;
-    var b=el("button","chip",String(p.n===null?"?":p.n));
-    b.setAttribute("aria-pressed", c.playN===p.n?"true":"false");
-    b.title=p.text;
-    b.addEventListener("click",function(){ c.playN=p.n; c.playText=p.text; renderForm(); });
-    pg.appendChild(b);
+  buildPlayGroups(visible).forEach(function(sec){
+    if(!sec.groups.length) return;
+    pg.appendChild(el("div","psec "+(sec.title==="Pass"?"pass":""), sec.title));
+    sec.groups.forEach(function(g){
+      pg.appendChild(el("div","pfam", g.name));
+      g.plays.forEach(function(p){
+        shown++;
+        var b=el("button","prow");
+        b.appendChild(el("span","ptx", p.text));
+        b.setAttribute("aria-pressed", c.playN===p.n?"true":"false");
+        b.addEventListener("click",function(){ c.playN=p.n; c.playText=p.text; renderForm(); });
+        pg.appendChild(b);
+      });
+    });
   });
   $("playCount").textContent = S.plays.length? (shown+" of "+S.plays.length):"no plays loaded";
   if(!S.plays.length){
@@ -1249,19 +1473,63 @@ document.addEventListener("DOMContentLoaded",function(){
   });
 
   // plays tab
-  function loadPlays(append){
-    var txt=$("playPaste").value;
-    var lines=txt.split(/\r?\n/);
-    var out=[], auto=(append? S.plays.length:0);
+  function loadFromLines(lines,append,msgEl){
+    lines = lines.filter(function(l){ return String(l).trim()!==""; });
+    // If most rows carry their own number, the odd unnumbered row is a title, not a play.
+    var numbered = numberedCount(lines);
+    var strict = lines.length>0 && (numbered / lines.length) > 0.6;
+    var out=[], auto=(append? S.plays.length:0), dropped=0;
     lines.forEach(function(l){
-      var p=parsePlayLine(l);
-      if(p){ if(p.n===null){ auto++; p.n=auto; } out.push(p); }
+      var isNum = /^\s*\d+\s*[\.\)\:\-]/.test(l);
+      if(strict && !isNum){ dropped++; return; }
+      var pp=parsePlayLine(l);
+      if(pp){ if(pp.n===null){ auto++; pp.n=auto; } out.push(pp); }
     });
-    if(!out.length){ $("parseMsg").textContent="Nothing parsed — check the paste."; return; }
+    if(!out.length){ msgEl.textContent="Nothing usable in that — check the file or paste."; return; }
     S.plays = append ? S.plays.concat(out) : out;
-    $("parseMsg").textContent = out.length+" plays read.";
+    msgEl.textContent = out.length+" plays read"+(dropped?(", "+dropped+" header row"+(dropped>1?"s":"")+" skipped"):"")+".";
     persist(); renderAll();
   }
+  function loadPlays(append){
+    loadFromLines($("playPaste").value.split(/\r?\n/), append, $("parseMsg"));
+  }
+  function ingestFile(file){
+    if(!file) return;
+    var msg=$("fileMsg");
+    msg.textContent="Reading "+file.name+"…";
+    var isX = /\.xlsx$/i.test(file.name);
+    var r=new FileReader();
+    r.onerror=function(){ msg.textContent="Could not read that file."; };
+    r.onload=function(){
+      try{
+        if(isX){
+          readXlsxLines(r.result).then(function(lines){
+            loadFromLines(lines,false,msg);
+          }).catch(function(err){
+            msg.textContent = (err && err.message==="nodecomp")
+              ? "This browser can't open .xlsx. Save the sheet as CSV, or paste the list below."
+              : "Couldn't read that workbook — try saving it as CSV, or paste the list below.";
+          });
+        } else {
+          var rows=parseCSVText(String(r.result));
+          loadFromLines(rowsToLines(rows),false,msg);
+        }
+      }catch(e){ msg.textContent="Couldn't read that file: "+e.message; }
+    };
+    if(isX) r.readAsArrayBuffer(file); else r.readAsText(file);
+  }
+  $("pickFile").addEventListener("click",function(){ $("playFile").click(); });
+  $("playFile").addEventListener("change",function(){ ingestFile(this.files && this.files[0]); this.value=""; });
+  var dz=$("dropZone");
+  ["dragenter","dragover"].forEach(function(ev){
+    dz.addEventListener(ev,function(e){ e.preventDefault(); dz.style.borderColor="var(--blue)"; });
+  });
+  ["dragleave","drop"].forEach(function(ev){
+    dz.addEventListener(ev,function(e){ e.preventDefault(); dz.style.borderColor="var(--rule)"; });
+  });
+  dz.addEventListener("drop",function(e){
+    if(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) ingestFile(e.dataTransfer.files[0]);
+  });
   $("parsePlays").addEventListener("click",function(){ loadPlays(false); });
   $("appendPlays").addEventListener("click",function(){ loadPlays(true); });
 
