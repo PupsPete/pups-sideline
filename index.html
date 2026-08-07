@@ -66,9 +66,7 @@ input,select,textarea{font:inherit;color:inherit}
 .qtr-mini button[aria-pressed="true"]{background:var(--blue);color:#fff;border-color:var(--blue)}
 
 /* ---------- snap strip (signature) ---------- */
-.strip-wrap{padding:0 10px 8px}
-.strip-head{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;
-  text-transform:uppercase;letter-spacing:.09em;color:var(--ink-2);margin-bottom:4px}
+.strip-wrap{padding:0 10px 7px}
 .strip{display:flex;gap:3px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
 .tick{flex:0 0 auto;width:26px;height:30px;border-radius:4px;border:1px solid var(--rule);
   background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -203,10 +201,6 @@ tr.noclip td{opacity:.6}
   </div>
   <div class="defband" id="defBand" hidden>Defense &mdash; charting the opponent</div>
   <div class="strip-wrap">
-    <div class="strip-head">
-      <span>Clip alignment &middot; dark ticks = rows sent to Hudl</span>
-      <span class="num" id="stripCount">0 clips / 0 events</span>
-    </div>
     <div class="strip" id="strip"></div>
   </div>
   <div class="tabs" role="tablist">
@@ -1087,7 +1081,6 @@ function renderStrip(){
     t.title = describe(ev);
     strip.appendChild(t);
   });
-  $("stripCount").textContent = clipN+" clips / "+S.events.length+" events";
   strip.scrollLeft = strip.scrollWidth;
 }
 function describe(ev){
@@ -1162,7 +1155,7 @@ function renderStats(){
   var cards=[
     ["Off snaps",b.n],["Yards",b.yds],["Yds / play",b.ypp.toFixed(1)],
     ["Success rate",Math.round(b.sr*100)+"%"],["Run / Pass",b.runs+" / "+b.passes],
-    ["TDs",b.tds],["Our penalties",ourPens.length],["Clips to Hudl",countClips()]
+    ["TDs",b.tds],["Our penalties",ourPens.length],["Rows for Hudl",countClips()]
   ];
   var cc=$("statCards"); cc.innerHTML="";
   cards.forEach(function(c){
@@ -1402,7 +1395,7 @@ function renderStorage(){
 }
 function renderHeader(){
   $("oppLabel").textContent = S.game.opp ? ((S.game.team?S.game.team+" vs ":"vs ")+S.game.opp) : "No game set";
-  $("gameMeta").textContent = (S.game.date||"")+" · "+countClips()+" clips · "+(STORE_OK?"saved":"unsaved");
+  $("gameMeta").textContent = (S.game.date||"")+" · "+countClips()+" play"+(countClips()===1?"":"s")+" · "+(STORE_OK?"saved":"unsaved");
   $("btnOff").setAttribute("aria-pressed",S.unit==="O"?"true":"false");
   $("btnDef").setAttribute("aria-pressed",S.unit==="D"?"true":"false");
   document.body.classList.toggle("def-mode",S.unit==="D");
