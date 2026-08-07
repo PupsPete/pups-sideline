@@ -35,6 +35,7 @@
   --tap:56px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
 html,body{margin:0;padding:0}
 body{
   background:var(--paper);color:var(--ink);
@@ -140,7 +141,8 @@ input,select,textarea{font:inherit;color:inherit}
 .playpick .derived{font-size:11px;color:var(--ink-2);letter-spacing:.04em;text-transform:uppercase;margin-top:3px;font-weight:700}
 
 .numpad{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.gainshow{font-size:34px;font-weight:900;letter-spacing:-.03em;min-width:78px;text-align:center}
+.gainshow{font-size:34px;font-weight:900;letter-spacing:-.03em;min-width:78px;text-align:center;color:var(--navy)}
+.chip.util{font-size:11px;letter-spacing:.03em;background:var(--rule-2)}
 
 textarea,input[type=text],input[type=date],input[type=number],select{
   width:100%;border:1px solid var(--rule);border-radius:8px;padding:10px;background:var(--card);font-size:16px}
@@ -441,7 +443,12 @@ tr.noclip td{opacity:.6}
 
   <div class="block">
     <div class="lbl"><span>Export</span></div>
-    <p class="hint" style="margin:0 0 8px">Do this on the drive home, before anyone closes the tab.</p>
+    <p class="hint" style="margin:0 0 9px">Do this on the drive home, before anyone closes the tab.</p>
+    <ul class="hint" style="margin:0 0 10px;padding-left:17px;line-height:1.55">
+      <li><strong>Hudl CSV</strong> &mdash; one row per filmed play, in order, in Hudl&rsquo;s columns. This is the file you import to Hudl.</li>
+      <li><strong>Full CSV</strong> &mdash; everything, including dead-ball penalties, camera-missed snaps, player names and note tags. For your own spreadsheet.</li>
+      <li><strong>Backup</strong> &mdash; the whole game in one small file. Load it in the Season tab for year-to-date totals, and keep it in case a device dies.</li>
+    </ul>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
       <button class="chip sm" id="expHudl">Download Hudl CSV</button>
       <button class="chip sm" id="expFull">Download full CSV</button>
@@ -964,11 +971,11 @@ function renderForm(){
 
   // result
   $("gainShow").textContent=(c.gain>0?"+":"")+c.gain;
-  var pads=[-5,-1,0,1,2,3,4,5,7,10,15,20,"±","clr"];
+  var pads=[-10,-5,-3,-1,"clr", 1,2,3,4,5, 7,10,15,20,"±"];
   var gp=$("gainPad"); gp.innerHTML="";
   pads.forEach(function(v){
-    var lbl = (v==="±")?"+/−" : (v==="clr")?"C" : (typeof v==="number"&&v>0?"+"+v:String(v));
-    var b=el("button","chip xs",lbl);
+    var lbl = (v==="±")?"+/−" : (v==="clr")?"Clear" : (typeof v==="number"&&v>0?"+"+v:String(v));
+    var b=el("button","chip xs"+(v==="clr"||v==="±"?" util":""),lbl);
     b.addEventListener("click",function(){
       if(v==="±") c.gain=-c.gain;
       else if(v==="clr") c.gain=0;
@@ -1742,7 +1749,14 @@ document.addEventListener("DOMContentLoaded",function(){
     r.readAsText(f);
   });
   $("updApply").addEventListener("click",function(){
-    if(PENDING_SETUP){ applySetup(PENDING_SETUP); toast("Setup loaded"); PENDING_SETUP=null; }
+    if(!PENDING_SETUP){ $("updBar").hidden=true; return; }
+    try{
+      applySetup(PENDING_SETUP);
+      toast("Setup loaded \u2014 "+S.plays.length+" plays, "+S.roster.length+" players");
+    }catch(err){
+      toast("Couldn't load that setup");
+    }
+    PENDING_SETUP=null;
     $("updBar").hidden=true;
   });
   $("updSkip").addEventListener("click",function(){
