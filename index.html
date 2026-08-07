@@ -69,7 +69,7 @@ input,select,textarea{font:inherit;color:inherit}
 .unit-toggle button{background:var(--card);border:0;padding:0 12px;height:38px;font-weight:800;font-size:13px;letter-spacing:.04em}
 .unit-toggle button[aria-pressed="true"]{background:var(--navy);color:#fff}
 .qtr-mini{display:flex;gap:4px}
-.qtr-mini button{width:34px;height:38px;border:1px solid var(--rule);background:var(--card);border-radius:8px;font-weight:800;font-size:14px}
+.qtr-mini button{width:42px;height:38px;border:1px solid var(--rule);background:var(--card);border-radius:8px;font-weight:800;font-size:13px;letter-spacing:.01em}
 .qtr-mini button[aria-pressed="true"]{background:var(--blue);color:#fff;border-color:var(--blue)}
 
 /* ---------- snap strip (signature) ---------- */
@@ -201,10 +201,10 @@ tr.noclip td{opacity:.6}
       <button id="btnDef" aria-pressed="false">DEF</button>
     </div>
     <div class="qtr-mini" role="group" aria-label="Quarter">
-      <button data-q="1" aria-pressed="true">1</button>
-      <button data-q="2" aria-pressed="false">2</button>
-      <button data-q="3" aria-pressed="false">3</button>
-      <button data-q="4" aria-pressed="false">4</button>
+      <button data-q="1" aria-pressed="true" aria-label="Quarter 1">Q1</button>
+      <button data-q="2" aria-pressed="false" aria-label="Quarter 2">Q2</button>
+      <button data-q="3" aria-pressed="false" aria-label="Quarter 3">Q3</button>
+      <button data-q="4" aria-pressed="false" aria-label="Quarter 4">Q4</button>
     </div>
   </div>
   <div class="defband" id="defBand" hidden>Defense &mdash; charting the opponent</div>
