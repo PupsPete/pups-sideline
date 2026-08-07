@@ -1,6 +1,6 @@
 /* Pups Sideline Log — offline shell.
    Bump CACHE when a new version ships; the old cache is deleted on activate. */
-var CACHE = "pups-sideline-v6";
+var CACHE = "pups-sideline-v7";
 var ASSETS = [
   "./",
   "./index.html",
@@ -43,6 +43,24 @@ self.addEventListener("fetch", function(e){
       }).catch(function(){
         return caches.match("./index.html").then(function(m){
           return m || caches.match("./");
+        });
+      })
+    );
+    return;
+  }
+
+  /* setup.json changes weekly — always try the network, keep a copy for the field. */
+  if(req.url.indexOf("setup.json") > -1){
+    e.respondWith(
+      fetch(req).then(function(res){
+        if(res && res.ok){
+          var copy = res.clone();
+          caches.open(CACHE).then(function(c){ c.put("./setup.json", copy); });
+        }
+        return res;
+      }).catch(function(){
+        return caches.match("./setup.json").then(function(m){
+          return m || new Response("{}", {status:404, headers:{"Content-Type":"application/json"}});
         });
       })
     );

@@ -51,6 +51,12 @@ input,select,textarea{font:inherit;color:inherit}
 /* ---------- top bar ---------- */
 .topbar{position:sticky;top:0;z-index:40;background:var(--card);border-bottom:3px solid var(--gold)}
 .mark{flex:0 0 auto;height:30px;width:auto;display:block}
+.updbar{background:var(--gold);border-top:1px solid var(--gold-2);padding:7px 10px;display:flex;
+  align-items:center;gap:9px;flex-wrap:wrap}
+.updbar .txt{flex:1;min-width:140px;font-size:12px;font-weight:800;color:var(--navy);line-height:1.25}
+.updbar button{border:2px solid var(--navy);background:var(--navy);color:#fff;border-radius:7px;
+  padding:7px 12px;font-size:12px;font-weight:800}
+.updbar button.no{background:transparent;color:var(--navy)}
 .defband{background:var(--gold);color:var(--navy);font-size:11px;font-weight:900;
   letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:4px 8px;
   border-top:1px solid var(--gold-2)}
@@ -200,6 +206,11 @@ tr.noclip td{opacity:.6}
     </div>
   </div>
   <div class="defband" id="defBand" hidden>Defense &mdash; charting the opponent</div>
+  <div class="updbar" id="updBar" hidden>
+    <span class="txt" id="updTxt"></span>
+    <button id="updApply">Load it</button>
+    <button class="no" id="updSkip">Not now</button>
+  </div>
   <div class="strip-wrap">
     <div class="strip" id="strip"></div>
   </div>
@@ -409,6 +420,26 @@ tr.noclip td{opacity:.6}
   </div>
 
   <div class="block">
+    <div class="lbl"><span>Share this setup with the other coaches</span></div>
+    <p class="hint" style="margin:0 0 8px">Do the setup once here &mdash; play sheet, roster, team, field. Then publish it, and every other device picks it up the next time it opens with a signal. Nobody else has to paste anything.</p>
+    <label class="hint">Label this setup
+      <input type="text" id="setupLabel" placeholder="Week 3 vs Zionsville"></label>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:9px">
+      <button class="chip sm" id="setupDownload">Download setup.json</button>
+      <button class="chip sm" id="setupShare">Send setup.json</button>
+      <button class="chip sm" id="setupLoad">Load a setup file</button>
+    </div>
+    <input type="file" id="setupFile" accept=".json,application/json" style="display:none">
+    <div class="hint" style="margin-top:8px" id="setupStatus"></div>
+    <ol class="hint" style="margin:8px 0 0;padding-left:18px;line-height:1.6">
+      <li>Click Download setup.json.</li>
+      <li>In the GitHub repo: Add file &rarr; Upload files &rarr; drag setup.json in &rarr; Commit.</li>
+      <li>Other devices see &ldquo;New setup available&rdquo; the next time they open online.</li>
+    </ol>
+    <p class="hint" style="margin:8px 0 0">No GitHub handy? Send the file by text or AirDrop and have them tap <strong>Load a setup file</strong>.</p>
+  </div>
+
+  <div class="block">
     <div class="lbl"><span>Export</span></div>
     <p class="hint" style="margin:0 0 8px">Do this on the drive home, before anyone closes the tab.</p>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
@@ -518,6 +549,8 @@ var S = {
   oppForms:["Trips Rt","Trips Lt","I Right","I Left","Spread","Wing Rt","Wing Lt"],
   oppPlays:["Inside run","Outside run","Sweep","Dive","Counter","Pass","QB keep","Screen"],
   cur:null,
+  setupLabel:"",
+  setupVersion:0,
   unit:"O",
   qtr:1,
   jerseySide:"our"
@@ -1372,7 +1405,79 @@ function fullCSV(){
 /* ============================================================
    Persistence + wiring
    ============================================================ */
-function persist(){ save(KEY,{game:S.game,plays:S.plays,roster:S.roster,events:S.events,oppForms:S.oppForms,oppPlays:S.oppPlays,cur:S.cur,unit:S.unit,qtr:S.qtr}); }
+function persist(){ save(KEY,{game:S.game,plays:S.plays,roster:S.roster,events:S.events,oppForms:S.oppForms,
+  oppPlays:S.oppPlays,cur:S.cur,unit:S.unit,qtr:S.qtr,setupLabel:S.setupLabel,setupVersion:S.setupVersion}); }
+
+/* ============================================================
+   Shared setup — one file, published next to the app.
+   ============================================================ */
+function buildSetup(){
+  return {
+    kind:"pups-sideline-setup",
+    version: Date.now(),
+    label: S.setupLabel || "",
+    team: S.game.team, field: S.game.field, evenRight: !!S.game.evenRight,
+    opponent: S.game.opp, date: S.game.date,
+    plays: S.plays, roster: S.roster,
+    oppForms: S.oppForms, oppPlays: S.oppPlays
+  };
+}
+function validSetup(d){ return !!(d && d.kind==="pups-sideline-setup" && Array.isArray(d.plays)); }
+function applySetup(d, withGameInfo){
+  if(!validSetup(d)) return false;
+  S.plays = d.plays || [];
+  if(Array.isArray(d.roster) && d.roster.length) S.roster = d.roster;
+  if(d.team!==undefined) S.game.team = d.team;
+  if(d.field) S.game.field = d.field;
+  if(d.evenRight!==undefined) S.game.evenRight = !!d.evenRight;
+  if(Array.isArray(d.oppForms) && d.oppForms.length) S.oppForms = d.oppForms;
+  if(Array.isArray(d.oppPlays) && d.oppPlays.length) S.oppPlays = d.oppPlays;
+  if(withGameInfo){
+    if(d.opponent) S.game.opp = d.opponent;
+    if(d.date) S.game.date = d.date;
+  }
+  S.setupLabel = d.label || "";
+  S.setupVersion = d.version || Date.now();
+  persist();
+  syncSetupFields();
+  renderAll();
+  return true;
+}
+function syncSetupFields(){
+  if($("setDate")) $("setDate").value=S.game.date;
+  if($("setOpp")) $("setOpp").value=S.game.opp;
+  if($("setTeam")) $("setTeam").value=S.game.team;
+  if($("setField")) $("setField").value=String(S.game.field);
+  if($("setEvenRight")) $("setEvenRight").checked=!!S.game.evenRight;
+  if($("setRoster")) $("setRoster").value=rosterToText(S.roster);
+  if($("setupLabel")) $("setupLabel").value=S.setupLabel;
+  renderSetupStatus();
+}
+function renderSetupStatus(){
+  var el2=$("setupStatus"); if(!el2) return;
+  el2.textContent = S.setupVersion
+    ? ("On this device: "+(S.setupLabel||"unlabeled setup")+" \u00b7 "+S.plays.length+" plays \u00b7 "+S.roster.length+" players")
+    : ("On this device: "+S.plays.length+" plays \u00b7 "+S.roster.length+" players (never published)");
+}
+var PENDING_SETUP=null;
+function checkPublishedSetup(){
+  if(typeof fetch!=="function") return;
+  fetch("setup.json?t="+Date.now(),{cache:"no-store"}).then(function(r){
+    if(!r.ok) throw new Error("none");
+    return r.json();
+  }).then(function(d){
+    if(!validSetup(d)) return;
+    if(!(d.version > (S.setupVersion||0))) return;
+    if(S.events.length){
+      PENDING_SETUP=d;
+      $("updTxt").textContent = "New setup available"+(d.label?(": "+d.label):"")+". A game is in progress \u2014 loading it now replaces the play sheet.";
+      $("updBar").hidden=false;
+    } else {
+      applySetup(d,true);
+      toast("Setup loaded"+(d.label?(": "+d.label):""));
+    }
+  }).catch(function(){});
+}
 function playerNameFrom(list,n){ for(var i=0;i<list.length;i++) if(list[i].n===n) return list[i].last; return ""; }
 function restore(){
   var d=load(KEY,null);
@@ -1384,6 +1489,7 @@ function restore(){
     else S.roster = r;
     S.oppForms=d.oppForms||S.oppForms; S.oppPlays=d.oppPlays||S.oppPlays;
     S.unit=d.unit||"O"; S.qtr=d.qtr||1; S.cur=d.cur||blankCur();
+    S.setupLabel=d.setupLabel||""; S.setupVersion=d.setupVersion||0;
   } else { S.cur=blankCur(); }
 }
 function renderStorage(){
@@ -1609,6 +1715,41 @@ document.addEventListener("DOMContentLoaded",function(){
     }
   });
   $("clearSeason").addEventListener("click",function(){ SEASON=[]; $("seasonMsg").textContent=""; renderSeason(); });
+
+  $("setupLabel").value=S.setupLabel;
+  $("setupLabel").addEventListener("input",function(){ S.setupLabel=this.value; persist(); });
+  $("setupDownload").addEventListener("click",function(){
+    if(!S.plays.length){ toast("Load a play sheet first"); return; }
+    download("setup.json",JSON.stringify(buildSetup(),null,1),"application/json");
+    renderSetupStatus();
+  });
+  $("setupShare").addEventListener("click",function(){
+    if(!S.plays.length){ toast("Load a play sheet first"); return; }
+    shareFile("setup.json",JSON.stringify(buildSetup(),null,1),"application/json");
+  });
+  $("setupLoad").addEventListener("click",function(){ $("setupFile").click(); });
+  $("setupFile").addEventListener("change",function(){
+    var f=this.files && this.files[0]; this.value="";
+    if(!f) return;
+    var r=new FileReader();
+    r.onload=function(){
+      var d=null;
+      try{ d=JSON.parse(r.result); }catch(e){}
+      if(applySetup(d, !S.events.length)) toast("Setup loaded"+(d.label?(": "+d.label):""));
+      else toast("That isn't a setup file");
+    };
+    r.readAsText(f);
+  });
+  $("updApply").addEventListener("click",function(){
+    if(PENDING_SETUP){ applySetup(PENDING_SETUP,false); toast("Setup loaded"); PENDING_SETUP=null; }
+    $("updBar").hidden=true;
+  });
+  $("updSkip").addEventListener("click",function(){
+    if(PENDING_SETUP){ S.setupVersion=PENDING_SETUP.version; persist(); PENDING_SETUP=null; }
+    $("updBar").hidden=true;
+  });
+  renderSetupStatus();
+  checkPublishedSetup();
 
   if("serviceWorker" in navigator){
     navigator.serviceWorker.register("sw.js").catch(function(){});
