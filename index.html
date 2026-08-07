@@ -421,7 +421,7 @@ tr.noclip td{opacity:.6}
 
   <div class="block">
     <div class="lbl"><span>Share this setup with the other coaches</span></div>
-    <p class="hint" style="margin:0 0 8px">Do the setup once here &mdash; play sheet, roster, team, field. Then publish it, and every other device picks it up the next time it opens with a signal. Nobody else has to paste anything.</p>
+    <p class="hint" style="margin:0 0 8px">Set the week once here &mdash; <strong>opponent, date, play sheet, roster</strong>. Publish it, and every other device picks all four up the next time it opens with a signal. Nobody else types anything.</p>
     <label class="hint">Label this setup
       <input type="text" id="setupLabel" placeholder="Week 3 vs Zionsville"></label>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:9px">
@@ -1423,19 +1423,19 @@ function buildSetup(){
   };
 }
 function validSetup(d){ return !!(d && d.kind==="pups-sideline-setup" && Array.isArray(d.plays)); }
-function applySetup(d, withGameInfo){
+function applySetup(d){
   if(!validSetup(d)) return false;
+  /* The four that define a week: opponent, date, plays, roster. Always applied. */
+  if(d.opponent!==undefined) S.game.opp = d.opponent;
+  if(d.date) S.game.date = d.date;
   S.plays = d.plays || [];
   if(Array.isArray(d.roster) && d.roster.length) S.roster = d.roster;
+  /* Season constants, carried so a new device needs no setup at all. */
   if(d.team!==undefined) S.game.team = d.team;
   if(d.field) S.game.field = d.field;
   if(d.evenRight!==undefined) S.game.evenRight = !!d.evenRight;
   if(Array.isArray(d.oppForms) && d.oppForms.length) S.oppForms = d.oppForms;
   if(Array.isArray(d.oppPlays) && d.oppPlays.length) S.oppPlays = d.oppPlays;
-  if(withGameInfo){
-    if(d.opponent) S.game.opp = d.opponent;
-    if(d.date) S.game.date = d.date;
-  }
   S.setupLabel = d.label || "";
   S.setupVersion = d.version || Date.now();
   persist();
@@ -1470,10 +1470,11 @@ function checkPublishedSetup(){
     if(!(d.version > (S.setupVersion||0))) return;
     if(S.events.length){
       PENDING_SETUP=d;
-      $("updTxt").textContent = "New setup available"+(d.label?(": "+d.label):"")+". A game is in progress \u2014 loading it now replaces the play sheet.";
+      $("updTxt").textContent = "New setup available"+(d.label?(": "+d.label):"")
+        +". A game is in progress \u2014 loading it replaces opponent, date, plays and roster. Logged plays are kept.";
       $("updBar").hidden=false;
     } else {
-      applySetup(d,true);
+      applySetup(d);
       toast("Setup loaded"+(d.label?(": "+d.label):""));
     }
   }).catch(function(){});
@@ -1735,13 +1736,13 @@ document.addEventListener("DOMContentLoaded",function(){
     r.onload=function(){
       var d=null;
       try{ d=JSON.parse(r.result); }catch(e){}
-      if(applySetup(d, !S.events.length)) toast("Setup loaded"+(d.label?(": "+d.label):""));
+      if(applySetup(d)) toast("Setup loaded"+(d.label?(": "+d.label):""));
       else toast("That isn't a setup file");
     };
     r.readAsText(f);
   });
   $("updApply").addEventListener("click",function(){
-    if(PENDING_SETUP){ applySetup(PENDING_SETUP,false); toast("Setup loaded"); PENDING_SETUP=null; }
+    if(PENDING_SETUP){ applySetup(PENDING_SETUP); toast("Setup loaded"); PENDING_SETUP=null; }
     $("updBar").hidden=true;
   });
   $("updSkip").addEventListener("click",function(){
